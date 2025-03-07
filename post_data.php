@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ancestors' Gate - Contact</title>
+    <title>Craftii - Email Capture</title>
     <link rel="stylesheet" href="style.css" />
     <meta http-equiv="refresh" content="5;url=https://craftii.net/craft/?c=<?php echo $config ?>" />
 </head>
