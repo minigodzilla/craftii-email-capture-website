@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craftii - Email Capture</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Craftii - Email Capture</h1>
+    <p>Please enter your email address to receive your craft.</p>
+    <p>Thank you!</p>
+    <form action="post_data.php" method="POST">
+        <label for="name">Your email address:</label>
+        <input required type="email" autocomplete="email" name="email" id="email" tabindex="0">
+        <input type="hidden" name="config" value="1011">
+        <input type="submit" name="submit" id="submit" value="Submit" tabindex="0">
+    </form>
+</body>
+
+<script>
+    const getConfigFromURL = () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("c")) {
+            let configCode = params.get("c");
+
+            // Ensure it is a 4-digit numeric code
+            if (/^\d{4}$/.test(configCode)) {
+                console.log("Config code:", configCode);
+                // populate the hidden input field with the config code
+                document.querySelector('input[name="config"]').value = configCode;
+            } else {
+                console.error("Invalid config code format:", configCode);
+            }
+        }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        getConfigFromURL();
+    });
+</script>
+
+</html>
