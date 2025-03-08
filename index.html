@@ -18,27 +18,26 @@
         <input type="hidden" name="config" value="">
         <input type="submit" name="submit" id="submit" value="Submit" tabindex="0">
     </form>
-</body>
+    <script>
+        const getConfigFromURL = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has("c")) {
+                let configCode = params.get("c");
 
-<script>
-    const getConfigFromURL = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has("c")) {
-            let configCode = params.get("c");
-
-            // Ensure it is a 4-digit numeric code
-            if (/^\d{4}$/.test(configCode)) {
-                console.log("Config code:", configCode);
-                // populate the hidden input field with the config code
-                document.querySelector('input[name="config"]').value = configCode;
-            } else {
-                console.error("Invalid config code format:", configCode);
+                // Ensure it is a 4-digit numeric code
+                if (/^\d{4}$/.test(configCode)) {
+                    console.log("Config code:", configCode);
+                    // populate the hidden input field with the config code
+                    document.querySelector('input[name="config"]').value = configCode;
+                } else {
+                    console.error("Invalid config code format:", configCode);
+                }
             }
         }
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        getConfigFromURL();
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            getConfigFromURL();
+        });
+    </script>
+</body>
 
 </html>
