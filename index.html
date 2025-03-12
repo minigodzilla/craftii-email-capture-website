@@ -6,17 +6,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Craftii - Email Capture</title>
     <link rel="stylesheet" href="style.css" />
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.querySelector("form");
+            const emailInput = form.querySelector("#MERGE0");
+            const hpInput = form.querySelector("#b_e7f83e702318920efe670e9b1_597f4b8abc");
+            const allInputs = form.querySelectorAll("input");
+            const statusMessage = form.querySelector("#status-message");
+
+            form.addEventListener("submit", event => {
+                // Prevent default form submission
+                event.preventDefault();
+
+                // Validate email address
+                const emailValue = emailInput.value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // "Simple" email pattern
+
+                if (!emailRegex.test(emailValue)) {
+                    // If the email does not match the pattern, display an error message
+                    statusMessage.innerHTML = "Please enter a valid email address.";
+                    // Stop the form submission
+                    return;
+                }
+
+                // Get the Submit URL from the <form>
+                let url = form.getAttribute("action");
+
+                // This URL change makes MailChimp's post action output in JSON
+                url = url.replace("/post?u=", "/post-json?u=");
+
+                // This constructs the rest of the URL with the form inputs and values
+                // The added "c=displayMailChimpStatus" makes MailChimp output a JS call to displayMailChimpStatus() with an argument, formed as an object, containing the results
+                url += "&" + encodeURIComponent(emailInput.name) + "=" + encodeURIComponent(emailInput.value) + "&" + encodeURIComponent(hpInput.name) + "=" + encodeURIComponent(hpInput.value) + "&c=displayMailChimpStatus";
+
+                // Remove focus from any inputs
+                document.activeElement.blur();
+
+                // Disable all form inputs
+                allInputs.forEach(input => input.disabled = true);
+                form.className = "submit-in-progress";
+
+                // Inject a script with the output from the post action 
+                // i.e. If all goes well, the post action should output "displayMailChimpStatus({"result":"success","msg":"Thank you for subscribing!"})"
+                const script = window.document.createElement("script");
+                script.src = url;
+
+                // Insert script tag into the DOM (append to <head>)
+                const ref = window.document.getElementsByTagName("script")[0];
+                ref.parentNode.insertBefore(script, ref);
+
+                // After the script is loaded (and executed), remove it
+                script.onload = function () {
+                    this.remove();
+                };
+            });
+
+            // Process the form action output arguments from MailChimp
+            window.displayMailChimpStatus = (data) => {
+                // Make sure the data is in the right format
+                if (!data.result || !data.msg) return;
+
+                // Check if the message contains "thank you" (case insensitive)
+                const thankYouRegex = /thank you/i;
+                const containsThankYou = thankYouRegex.test(data.msg);
+
+                // Choose an appropriate action based on the presence of "thank you"
+                if (containsThankYou) {
+                    // Display a custom status message
+                    statusMessage.innerHTML = "Please check your email for a link to activate your craft.";
+                } else {
+                    // Output the raw endpoint status message
+                    statusMessage.innerHTML = data.msg;
+                }
+
+                // If successful, set the appropriate class to the form;
+                // otherwise, re-enable all form inputs and reset the form class
+                if (data.result === "success") {
+                    form.className = "submit-completed";
+                }
+                else {
+                    allInputs.forEach(input => input.disabled = false);
+                    form.className = "";
+                }
+            };
+        });
+    </script>
 </head>
 
 <body>
     <h1>Craftii - Email Capture</h1>
     <p>Please enter your email address to receive your craft.</p>
     <p>Thank you!</p>
-    <form action="post_data.php" method="POST">
-        <label for="email">Your email address:</label>
-        <input required type="email" autocomplete="email" name="email" id="email" tabindex="0">
-        <input type="hidden" name="config" value="">
+    <form action="https://gmail.us21.list-manage.com/subscribe/post?u=e7f83e702318920efe670e9b1&amp;id=cbd926c7c0" method="POST" novalidate>
+        <!-- real users should not fill this in and expect good things -->
+        <div class="field-shift" aria-label="Please leave the following field empty" aria-hidden="true">
+            <input type="text" name="b_e7f83e702318920efe670e9b1_597f4b8abc" id="b_e7f83e702318920efe670e9b1_597f4b8abc" tabindex="-1" value="">
+        </div>
+        <label for="MERGE0">Your email address:</label>
+        <input required type="email" autocomplete="email" name="MERGE0" id="MERGE0" tabindex="0">
+        <input type="hidden" name="MERGE1" id="MERGE1" value="">
         <input type="submit" name="submit" id="submit" value="Submit" tabindex="0">
+        <p id="status-message"></p>
     </form>
     <script>
         const getConfigFromURL = () => {
@@ -28,7 +118,7 @@
                 if (/^\d{4}$/.test(configCode)) {
                     console.log("Config code:", configCode);
                     // populate the hidden input field with the config code
-                    document.querySelector('input[name="config"]').value = configCode;
+                    document.querySelector('input[name="MERGE1"]').value = configCode;
                 } else {
                     console.error("Invalid config code format:", configCode);
                 }
